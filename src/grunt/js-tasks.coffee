@@ -28,11 +28,14 @@ module.exports =
   concat:
     options:
       separator: '\n'
-    src: ['src/header.js', 'dist/dev/**/*.js', 'src/footer.js']
+    src: ['dist/dev/libs.js','src/header.js', 'dist/dev/**/*.js', 'src/footer.js']
     dest: 'dist/client.js'
   uglify:
-    files:
-      'dist/client.min.js': ['dist/client.js']
+    expand: true
+    cwd: 'dist/'
+    src: ['*.js', '!*.min.js']
+    dest: 'dist/'
+    ext: '.min.js'
   watch:
     files: ['src/**/*.js']
     tasks: ['newer:copy:js', 'newer:jshint:js', 'newer:wrap:js', 'newer:concat:js', 'newer:uglify:js' ]

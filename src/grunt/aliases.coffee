@@ -1,5 +1,7 @@
 module.exports =
   default: [
+    'concat:libs'
+    'copy:libs'
     'copy:js'
     'jshint:js'
     'coffee:coffee'
