@@ -2,7 +2,7 @@
 defineWrapper = (filepath, options) -> 
   filepath = filepath.replace(/^dist\/raw/, '')
   return [
-    ';define("' + filepath + '", function(require, exports, module){'
+    ';defineModule("' + filepath + '", function(require, exports, module){'
     '});'
   ]
 

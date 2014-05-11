@@ -6,7 +6,7 @@ var __commonjs_factories = {};
 
 // Public Methods
 
-function define(id, factory) { 
+function defineModule(id, factory) { 
 	id = id.replace(/\/index$/, '');
 	__commonjs_factories[id] = factory; 
 } 
