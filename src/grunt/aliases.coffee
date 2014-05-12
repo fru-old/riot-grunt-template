@@ -1,11 +1,14 @@
 module.exports =
   default: [
+    'build'
+    'lint'
+    'watch'
+  ]
+  build: [
     'concat:libs'
     'copy:libs'
     'copy:js'
-    'jshint:js'
     'coffee:coffee'
-    'coffeelint:coffee'
     'copy:css'
     'stylus:css'
     'cssUrlEmbed:css'
@@ -16,5 +19,12 @@ module.exports =
     'newer:copy:html'
     'concat:js'
     'uglify:js'
-    'watch'
+    'coffee:test'
+  ]
+  lint: [
+    'coffeelint:coffee'
+    'jshint:js'
+  ]
+  test: [
+    
   ]
