@@ -2273,7 +2273,7 @@ exports.init = function(onClose, onRun) {
   exports.hide();
   onrun = onRun;
   leftbar = xui('template#leftbar').html()[0];
-  xui('body').bottom(riot.render(leftbar, {}));
+  xui('#puppet-overlay').bottom(riot.render(leftbar, {}));
   xui('#puppet-leftbar a.bind-close').on('click', onClose);
   addEventSelect = xui('#puppet-leftbar .head select');
   return addEventSelect.on('change', function() {
@@ -2408,5 +2408,6 @@ xui.ready(function() {
 });
 
 require('/leftbar/leftbar.js');
+require('/page.js');
 
 })();

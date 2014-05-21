@@ -46,7 +46,7 @@ opened iframe.
       onrun = onRun
 
       leftbar = xui('template#leftbar').html()[0]
-      xui('body').bottom riot.render leftbar, {}
+      xui('#puppet-overlay').bottom riot.render leftbar, {}
       xui('#puppet-leftbar a.bind-close').on 'click', onClose
 
       addEventSelect = xui('#puppet-leftbar .head select')
