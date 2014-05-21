@@ -5,6 +5,7 @@ module.exports =
     src: [
       'libs/requireshim/require_shim.js'
       'libs/xui/xui-2.3.2.js'
+      'libs/xui/xui-extensions.js'
       'libs/riot/riot.js'
       'libs/valentine/valentine.js'
     ]

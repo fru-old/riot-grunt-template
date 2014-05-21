@@ -1,0 +1,104 @@
+#puppet-leftbar {
+  font-family: "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  overflow-y: auto;
+  height: 100%;
+}
+#puppet-leftbar,
+#puppet-leftbar .attr {
+  width: 260px;
+}
+#puppet-leftbar .head {
+  background-color: #2b81af;
+  color: #fff;
+  text-shadow: 2px 2px 1px rgba(0,0,0,0.5);
+  height: 31px;
+}
+#puppet-leftbar .head select {
+  font: inherit;
+  margin: 0.5em 0.5em 0.5em 6px;
+}
+#puppet-leftbar .head .icon {
+  float: right;
+  cursor: pointer;
+  height: 17px;
+  padding: 8px 9px 6px;
+}
+#puppet-leftbar .head .icon:hover {
+  text-shadow: none;
+  color: #8699a4;
+  background-color: #0d3349;
+}
+#puppet-leftbar .event-head {
+  background-color: #d2e0e6;
+  border-top: 1px solid #fff;
+  padding: 0.5em 0 0.5em 6px;
+  color: #2b81af;
+}
+#puppet-leftbar .event-head .name {
+  display: inline;
+}
+#puppet-leftbar .event-head .icon {
+  float: right;
+  cursor: pointer;
+  margin: 0 3px 0 4px;
+}
+#puppet-leftbar .event-head .icon:before {
+  padding-right: 2px;
+}
+#puppet-leftbar .event-head .icon:hover {
+  color: #0d3349;
+}
+#puppet-leftbar .event-body {
+  margin: 1px 0 1px 0;
+}
+#puppet-leftbar .event-body .attribute {
+  display: table;
+  margin: 2px 0;
+}
+#puppet-leftbar .event-body .attribute .icon {
+  padding: 0 5px 3px 4px;
+  cursor: default;
+  vertical-align: middle;
+}
+#puppet-leftbar .event-body .attribute .icon:before {
+  font-size: 14px !important;
+}
+#puppet-leftbar .event-body .attribute input,
+#puppet-leftbar .event-body .attribute select {
+  font: inherit;
+  vertical-align: middle;
+}
+#puppet-leftbar .event-body .attribute input[type='checkbox'] {
+  margin-right: 0 8px 0 5px;
+}
+#puppet-leftbar .event-body .attribute input[type='text'],
+#puppet-leftbar .event-body .attribute select {
+  height: 19px;
+  width: 100%;
+  padding: 1px;
+  margin: 0;
+}
+#puppet-leftbar .event-body .attribute input[type='text'] {
+  padding-left: 4px;
+}
+#puppet-leftbar .event-body .attribute input[type='text'],
+#puppet-leftbar .event-body .attribute select {
+  border: #dedede 1px solid;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+#puppet-leftbar .event-body .attribute label {
+  vertical-align: middle;
+}
+#puppet-leftbar .event-body .attribute .label {
+  display: table-cell;
+  white-space: nowrap;
+  padding-right: 2px;
+}
+#puppet-leftbar .event-body .attribute .value {
+  display: table-cell;
+  padding-right: 0;
+  width: 100%;
+}

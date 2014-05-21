@@ -1,0 +1,64 @@
+
+
+var stopGlobal = false;
+
+function action(event){
+	if(stopGlobal)return;
+	event.stopPropagation();
+	event.preventDefault();
+	console.log(event);
+	var evt = document.createEvent("MouseEvents");
+    evt.initMouseEvent("click", true, true, window, 1, 0, 0, 0, 0,
+        false, false, false, false, 0, null);
+	stopGlobal = true;
+	event.target.dispatchEvent(evt);
+	stopGlobal = false;
+}
+
+
+
+
+document.body.addEventListener('click', action, true)
+
+
+
+
+
+// prevent
+
+
+
+
+function action(event){
+	event.stopPropagation();
+	event.preventDefault();
+	console.log(event);
+	return false;
+}
+
+
+var events = [
+	'mousedown',
+	'click',
+	'mouseup',
+	'mousemove'
+]
+
+
+for( var i = 0; i < events.length; i++){
+	document.body.addEventListener(events[i], action, true)
+}
+
+
+
+
+
+
+// Mouse event plugin
+
+
+
+
+
+
+

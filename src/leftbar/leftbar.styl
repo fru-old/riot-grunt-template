@@ -1,0 +1,85 @@
+#puppet-leftbar
+	
+	font-family "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial, sans-serif
+	font-size 12px
+	overflow-y auto
+	height 100%
+
+	&, .attr
+		width 260px
+
+	.head
+		background-color #2B81AF
+		color #FFF
+		text-shadow 2px 2px 1px rgba(0, 0, 0, 0.5)
+		height 31px
+		select
+			font inherit
+			margin: 0.5em 0.5em 0.5em 6px;
+		.icon
+			float right
+			cursor pointer
+			height 17px
+			padding 8px 9px 6px
+		.icon:hover
+			text-shadow none
+			color #8699A4
+			background-color #0D3349
+	
+	.event-head 
+		background-color #D2E0E6
+		border-top 1px solid white
+		padding 0.5em 0 0.5em 6px
+		color #2b81af
+		.name
+			display inline
+		.icon
+			float right
+			cursor pointer
+			margin 0 3px 0 4px
+		.icon:before
+			padding-right 2px
+		.icon:hover
+			color #0D3349
+	
+	.event-body
+		margin 1px 0 1px 0
+		
+		.attribute
+			.icon
+				padding 0 5px 3px 4px
+				cursor default
+				vertical-align middle
+			.icon:before
+				font-size 14px !important
+			input, select
+				font inherit
+				vertical-align middle
+			input[type='checkbox']
+				margin-right 0 8px 0 5px
+			input[type='text'], select
+				height 19px
+				width 100%
+				padding 1px
+				margin 0
+			input[type='text']
+				padding-left 4px
+			input[type='text'], select
+				border #dedede 1px solid
+				-webkit-box-sizing border-box
+				-moz-box-sizing border-box
+				box-sizing border-box
+			label
+				vertical-align middle
+				
+			// Expand attributes to max width
+			display table
+			margin 2px 0
+			.label
+				display table-cell
+				white-space nowrap
+				padding-right 2px
+			.value
+				display table-cell
+				padding-right 0
+				width 100%

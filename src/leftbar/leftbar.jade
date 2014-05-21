@@ -1,0 +1,30 @@
+
+template#leftbar
+	#puppet-leftbar
+		.head 
+			select
+				option Add Event
+			a.icon.cross.bind-close Close Puppet
+		//- template#event
+
+template#event
+	.event
+		.event-head
+			.name {name}
+			a.icon.cross.bind-remove 
+			a.icon.play.bind-run Run
+		.event-body
+			//- template#attribute
+			.attribute-add.attribute
+				.label
+					.icon.plus
+				.value
+					select
+						option
+						
+template#attribute
+	.attribute
+		.label
+			input(type='checkbox',checked)
+			label {label}
+		.value {value}
