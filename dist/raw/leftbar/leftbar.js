@@ -1,4 +1,4 @@
-var addAttribute, onrun, registeredEvents, resetCheckbox;
+var Puppet, addAttribute, onrun, registeredEvents, resetCheckbox;
 
 resetCheckbox = function(checkbox) {
   var value;
@@ -103,7 +103,7 @@ addAttribute = function(current, name, value) {
   return current.find('.attribute-add').before(html);
 };
 
-exports.serializeEvent = function(events) {
+window.print = exports.serializeEvent = function(events) {
   var result;
   result = [];
   events = events || xui('.event');
@@ -133,27 +133,222 @@ exports.serializeEvent = function(events) {
   return result;
 };
 
+Puppet = function(url) {
+  var html, self;
+  html = "<iframe src='" + url + "'></iframe>";
+  xui('#puppet-frames').bottom(html);
+  this.iframe = v.last(xui('#puppet-frames iframe'));
+  this.window = this.iframe.contentWindow;
+  self = this;
+  setInterval((function() {
+    return self.initiate();
+  }), 50);
+  return this;
+};
+
+Puppet.prototype.initiate = function() {
+  var self;
+  self = this;
+  if (!this.window.initiated && this.window.document.readyState === 'complete') {
+    v.each(Puppet.plugins, function(plugin) {
+      return plugin.detect.call(self, function(data) {
+        if (Puppet.disableRecorder) {
+          return;
+        }
+        return exports.addEvent(data);
+      });
+    });
+    return this.window.initiated = true;
+  }
+};
+
+Puppet.plugins = [];
+
+Puppet.plugin = function(plugin) {
+  Puppet.plugins.push(plugin);
+  exports.registerEvent(plugin);
+  return Puppet.prototype[plugin.name] = function() {
+    return plugin.run.apply(this, arguments);
+  };
+};
+
+exports.Puppet = Puppet;
+
 xui.ready(function() {
+  var puppet, waiter;
   exports.init(exports.hide, function(data) {
     return console.log(data);
   });
-  return exports.registerEvent({
-    name: 'click',
-    current: [
-      {
-        'x': '4px'
-      }, {
-        'y': '3px'
-      }, {
-        'id': ['fullid', 'false']
+  Puppet.queue = [];
+  Puppet.addToQueue = function(window, action) {
+    return Puppet.queue.push(function() {
+      if (window.document.readyState !== 'complete') {
+        return false;
       }
-    ],
-    addable: [
+      Puppet.disableRecorder = true;
+      action();
+      Puppet.disableRecorder = false;
+      return true;
+    });
+  };
+  waiter = setInterval(function() {
+    if (Puppet.queue.length) {
+      if (Puppet.queue[0]()) {
+        return Puppet.queue = Puppet.queue.slice(1);
+      }
+    }
+  }, 1000);
+  (function() {
+    var attr, name;
+    name = 'click';
+    attr = [
       {
-        'class': function(add) {
-          return add('class', '');
+        'x': function(add) {
+          return add('x', '');
+        }
+      }, {
+        'y': function(add) {
+          return add('y', '');
+        }
+      }, {
+        'selector': function(add) {
+          return add('selector', 'div#id.class');
         }
       }
-    ]
-  });
+    ];
+    return Puppet.plugin({
+      name: name,
+      current: [],
+      addable: attr,
+      run: function(data) {
+        var selector, win, x, y;
+        x = (data.x || [])[0];
+        y = (data.y || [])[0];
+        selector = (data.selector || [])[0];
+        win = this.window;
+        return Puppet.addToQueue(this.window, function() {
+          var click, mousedown, mouseup, target;
+          if (selector) {
+            target = xui(win.document).find(selector)[0];
+          } else {
+            target = win.document.elementFromPoint(x, y);
+          }
+          mousedown = win.document.createEvent('MouseEvents');
+          mousedown.initMouseEvent('mousedown', true, true, win, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+          target.dispatchEvent(mousedown);
+          mouseup = win.document.createEvent('MouseEvents');
+          mouseup.initMouseEvent('mouseup', true, true, win, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+          target.dispatchEvent(mouseup);
+          click = win.document.createEvent('MouseEvents');
+          click.initMouseEvent('click', true, true, win, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+          target.dispatchEvent(click);
+          return target.focus();
+        });
+      },
+      detect: function(add) {
+        var action;
+        action = function(e) {
+          return add({
+            name: name,
+            current: [
+              {
+                'x': e.pageX
+              }, {
+                'y': e.pageY
+              }
+            ],
+            addable: attr
+          });
+        };
+        return this.window.document.body.addEventListener('click', action, true);
+      }
+    });
+  })();
+  (function() {
+    var attr, name;
+    name = 'typing';
+    attr = [
+      {
+        'text': function(add) {
+          return add('text', '');
+        }
+      }
+    ];
+    return Puppet.plugin({
+      name: name,
+      current: [],
+      addable: attr,
+      run: function(data) {
+        var text, win;
+        text = (data.text || [])[0];
+        win = this.window;
+        return Puppet.addToQueue(this.window, function() {
+          var char, i, _i, _ref;
+          for (i = _i = 0, _ref = text.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+            char = text.charCodeAt(i);
+            v.each(['keydown', 'keyup', 'keypress'], function(event) {
+              var key;
+              key = win.document.createEvent('KeyboardEvent');
+              if (key.initKeyEvent) {
+                key.initKeyEvent(event, true, true, win, 0, 0, 0, 0, 0, char);
+              } else {
+                key.initKeyboardEvent(event, true, true, win, 0, 0, 0, 0, 0, char);
+              }
+              return win.document.activeElement.dispatchEvent(key);
+            });
+          }
+          return win.document.activeElement.value = text;
+        });
+      },
+      detect: function(add) {
+        var action;
+        action = function(event) {
+          console.log(event);
+        };
+        return this.window.document.body.addEventListener('keypress', action, true);
+      }
+    });
+  })();
+  puppet = new Puppet('/AptDeFE/start/buyer');
+  puppet.tab = {
+    finance: function() {
+      return puppet.click({
+        x: [499],
+        y: [75]
+      });
+    }
+  };
+  puppet.login = function(user, password) {
+    puppet.click({
+      selector: ['a.js_goto_loginpage']
+    });
+    puppet.click({
+      x: [496],
+      y: [317]
+    });
+    puppet.typing({
+      text: ["auto@portal.de"]
+    });
+    puppet.click({
+      x: [496],
+      y: [377]
+    });
+    puppet.typing({
+      text: ["init"]
+    });
+    puppet.click({
+      x: [704],
+      y: [545]
+    });
+    puppet.click({
+      x: [859],
+      y: [2408]
+    });
+    return puppet.click({
+      x: [828],
+      y: [1517]
+    });
+  };
+  puppet.tab.finance();
+  return puppet.login();
 });

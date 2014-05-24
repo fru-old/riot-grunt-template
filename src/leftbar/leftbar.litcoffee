@@ -116,7 +116,7 @@ opened iframe.
 
 ## Serialize event to json
 
-    exports.serializeEvent = (events) ->
+    window.print = exports.serializeEvent = (events) ->
       result = []
       events = events || xui('.event')
       v.each events, (event) ->
@@ -137,16 +137,169 @@ opened iframe.
       return result
 
 
+## Public interface
+
+    Puppet = (url) ->
+      html = "<iframe src='#{url}'></iframe>"
+      xui('#puppet-frames').bottom(html)
+      @iframe = v.last xui('#puppet-frames iframe')
+      @window =  @iframe.contentWindow
+      self = this
+      setInterval (-> do self.initiate), 50
+      return this
+    
+    Puppet.prototype.initiate = () ->
+      self = this
+      if !@window.initiated && @window.document.readyState == 'complete'
+        v.each Puppet.plugins, (plugin) ->
+          plugin.detect.call self, (data) ->
+            return if Puppet.disableRecorder
+            exports.addEvent data
+        @window.initiated = true
+
+    # static 
+    Puppet.plugins = []
+    Puppet.plugin = (plugin) ->
+      Puppet.plugins.push plugin
+      exports.registerEvent plugin
+      Puppet.prototype[plugin.name] = () ->
+        plugin.run.apply(this,arguments)
+
+
+    exports.Puppet = Puppet
+    
     xui.ready ->
       exports.init exports.hide, (data) ->
         console.log data
-      exports.registerEvent
-        name: 'click'
-        current: [
-          { 'x': '4px' }
-          { 'y': '3px' }
-          { 'id': ['fullid', 'false'] }
+
+      Puppet.queue = []
+
+      Puppet.addToQueue = (window, action) ->
+        Puppet.queue.push ->
+          return false if window.document.readyState != 'complete'
+          Puppet.disableRecorder = true
+          do action
+          Puppet.disableRecorder = false
+          return true
+
+      waiter = setInterval(->
+        if Puppet.queue.length
+          if Puppet.queue[0]()
+            Puppet.queue = Puppet.queue.slice(1)
+      , 1000)
+
+
+      # click handler
+      do ->
+        name = 'click'
+        attr = [
+          { 'x': (add) -> add 'x', '' }
+          { 'y': (add) -> add 'y', '' }
+          { 'selector': (add) -> add 'selector', 'div#id.class' }
         ]
-        addable: [
-          { 'class': (add) -> add 'class', '' }
+        Puppet.plugin 
+          name: name
+          current: []
+          addable: attr
+          run: (data) ->
+            x = (data.x || [])[0]
+            y = (data.y || [])[0]
+            selector = (data.selector || [])[0]
+            win = @window
+            Puppet.addToQueue @window, ->
+              if selector
+                target = xui(win.document).find(selector)[0]
+              else
+                target = win.document.elementFromPoint(x, y)
+              mousedown = win.document.createEvent('MouseEvents')
+              mousedown.initMouseEvent('mousedown', true, true, win, 1, 0, 0, 0, 0, false, false, false, false, 0, null)
+              target.dispatchEvent mousedown
+              mouseup = win.document.createEvent('MouseEvents')
+              mouseup.initMouseEvent('mouseup', true, true, win, 1, 0, 0, 0, 0, false, false, false, false, 0, null)
+              target.dispatchEvent mouseup
+              click = win.document.createEvent('MouseEvents')
+              click.initMouseEvent('click', true, true, win, 1, 0, 0, 0, 0, false, false, false, false, 0, null)
+              target.dispatchEvent click
+              do target.focus # on firefox input didnt get focus
+          detect: (add) -> 
+            action = (e) ->
+              add 
+                name: name
+                current: [
+                  {'x': e.pageX}
+                  {'y': e.pageY}
+                ]
+                addable: attr
+            @window.document.body.addEventListener('click', action, true)
+
+      # typing handler
+      do ->
+        name = 'typing'
+        attr = [
+          { 'text': (add) -> add 'text', '' }
         ]
+        Puppet.plugin 
+          name: name
+          current: []
+          addable: attr
+          run: (data) ->
+            text = (data.text || [])[0]
+            win = @window
+            Puppet.addToQueue @window, ->
+              for i in [0..text.length-1]
+                char = text.charCodeAt i
+                v.each [
+                  'keydown'
+                  'keyup'
+                  'keypress'
+                ], (event) ->
+                  key = win.document.createEvent('KeyboardEvent')
+                  if key.initKeyEvent 
+                    key.initKeyEvent(event, true, true, win, 0, 0, 0, 0, 0, char) 
+                  else 
+                    key.initKeyboardEvent(event, true, true, win, 0, 0, 0, 0, 0, char) 
+                  win.document.activeElement.dispatchEvent key
+              win.document.activeElement.value = text
+
+          detect: (add) -> 
+            action = (event) ->
+              console.log event
+              return 
+            @window.document.body.addEventListener('keypress', action, true)
+
+
+
+      puppet = new Puppet('/AptDeFE/start/buyer')
+      puppet.tab = {
+        finance: () ->
+          puppet.click 
+            x: [499]
+            y: [75]
+      }
+
+      puppet.login = (user, password) ->
+        puppet.click 
+          selector: ['a.js_goto_loginpage']
+        puppet.click 
+          x: [496]
+          y: [317]
+        puppet.typing 
+          text: ["auto@portal.de"]
+        puppet.click 
+          x: [496]
+          y: [377]
+        puppet.typing 
+          text: ["init"]
+        puppet.click #login
+          x: [704]
+          y: [545]
+        puppet.click
+          x: [859]
+          y: [2408]
+        puppet.click 
+          x: [828]
+          y: [1517]
+
+      do puppet.tab.finance
+      do puppet.login
+
